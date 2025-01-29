@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מנהל פרומפטים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            direction: rtl;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, textarea, button {
+            width: 80%;
+            max-width: 400px;
+            margin: 10px auto;
+            padding: 10px;
+            display: block;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: white;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        function savePrompt() {
+            let promptName = document.getElementById("promptName").value;
+            let promptText = document.getElementById("promptText").value;
+            
+            let prompts = JSON.parse(localStorage.getItem("prompts")) || {};
+            prompts[promptName] = promptText;
+            localStorage.setItem("prompts", JSON.stringify(prompts));
+            alert("הפרומפט נשמר בהצלחה!");
+            listPrompts();
+        }
+        
+        function loadPrompt() {
+            let promptName = document.getElementById("promptName").value;
+            let prompts = JSON.parse(localStorage.getItem("prompts")) || {};
+            document.getElementById("promptText").value = prompts[promptName] || "פרומפט לא נמצא.";
+        }
+        
+        function listPrompts() {
+            let prompts = JSON.parse(localStorage.getItem("prompts")) || {};
+            let promptList = document.getElementById("promptList");
+            promptList.innerHTML = "";
+            for (let key in prompts) {
+                let li = document.createElement("li");
+                li.textContent = key;
+                promptList.appendChild(li);
+            }
+        }
+        
+        function deletePrompt() {
+            let promptName = document.getElementById("promptName").value;
+            let prompts = JSON.parse(localStorage.getItem("prompts")) || {};
+            if (prompts[promptName]) {
+                delete prompts[promptName];
+                localStorage.setItem("prompts", JSON.stringify(prompts));
+                alert("הפרומפט נמחק בהצלחה!");
+                listPrompts();
+            } else {
+                alert("פרומפט לא נמצא.");
+            }
+        }
+        
+        function clearPrompts() {
+            localStorage.removeItem("prompts");
+            alert("כל הפרומפטים נמחקו.");
+            listPrompts();
+        }
+        
+        function autocompletePrompt() {
+            let input = document.getElementById("promptName");
+            let prompts = JSON.parse(localStorage.getItem("prompts")) || {};
+            let suggestions = Object.keys(prompts).filter(name => name.startsWith(input.value));
+            
+            let datalist = document.getElementById("promptSuggestions");
+            datalist.innerHTML = "";
+            
+            suggestions.forEach(suggestion => {
+                let option = document.createElement("option");
+                option.value = suggestion;
+                datalist.appendChild(option);
+            });
+        }
+    </script>
+</head>
+<body onload="listPrompts()">
+    <h1>מנהל פרומפטים</h1>
+    <label for="promptName">שם הפרומפט:</label>
+    <input type="text" id="promptName" placeholder="הכנס שם לפרומפט" oninput="autocompletePrompt()" list="promptSuggestions" />
+    <datalist id="promptSuggestions"></datalist>
+    <br>
+    <label for="promptText">תוכן הפרומפט:</label>
+    <textarea id="promptText" placeholder="הכנס תוכן לפרומפט"></textarea>
+    <br>
+    <button onclick="savePrompt()">שמור פרומפט</button>
+    <button onclick="loadPrompt()">טען פרומפט</button>
+    <button onclick="deletePrompt()">מחק פרומפט</button>
+    <button onclick="clearPrompts()">נקה את כל הפרומפטים</button>
+    <h2>רשימת פרומפטים שמורים:</h2>
+    <ul id="promptList"></ul>
+</body>
+</html>
